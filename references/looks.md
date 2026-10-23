@@ -31,6 +31,7 @@ Inspired by high-end studio interview edits: dark room, lit subject, tiny tracke
 
 ## Fonts on hand (assets/template/assets/fonts, latin woff2 + fonts.css, SIL Open Font License)
 Inter 500/600, Inter Tight 800/900, Instrument Serif italic, DM Serif Display (+italic), Montserrat 500/600, JetBrains Mono 500, Caveat 600.
+Hebrew (hebrew + latin subsets): Heebo 500/700/800/900, Frank Ruhl Libre 500/700/900.
 Add more with the Google Fonts CSS2 API + a Chrome user agent, keep only the `/* latin */` blocks, `font-display:block`.
 
 ## Avoid (they looked worse every time)

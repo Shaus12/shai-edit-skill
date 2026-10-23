@@ -33,6 +33,7 @@ and go to Step 1 once it prints READY.
    - Your Instagram handle (for your profile insert and to pull your reels for the orbit effect)
    - Default look: **bold** (kinetic words behind your head), **cool girl** (warm, yellow serif italic, your reels
      orbiting you) or **cool dude** (dark editorial, tracked caps + serif). Offer bold if they are unsure.
+   - Language the clips are spoken in: `en` (default) or `he` (Hebrew: ivrit-ai Whisper, Heebo / Frank Ruhl Libre, RTL)
    - Where your raw clips usually land (default `~/Downloads`) and where projects should live (default `~/reel-edits`)
 3. Run the setup script with whichever Python the machine has. Try these in order until one prints STATUS lines:
    `python3 "SK/scripts/setup.py"`, then `python "SK/scripts/setup.py"`, then `py -3 "SK/scripts/setup.py"`.
@@ -56,7 +57,7 @@ and go to Step 1 once it prints READY.
    Without Apify, the skill asks them to drop their reel files into the project instead.
 5. Save `SK/config.json` (no secrets, ever):
    ```json
-   {"name": "...", "instagram": "handle-without-@", "defaultLook": "bold", "clipsDir": "~/Downloads",
+   {"name": "...", "instagram": "handle-without-@", "defaultLook": "bold", "language": "en", "clipsDir": "~/Downloads",
     "projectsDir": "~/reel-edits", "setupComplete": true, "setupDate": "YYYY-MM-DD"}
    ```
 6. Say: "Setup complete! Running /shai-edit now..." and continue.
@@ -158,6 +159,14 @@ max around -2 to -5 dB) and the silence at section joins.
 Send or point to the phone copy (720p) and the full-quality render. Report in plain terms what changed and anything
 that needs the user's call. Keep every version in `renders/`; back up `assets/` + `segments.json` to `work/vN/` before
 re-assembling.
+
+## Hebrew reels (`"language": "he"`)
+- ingest.py and transcribe_cut.py read the language from config.json and use ivrit.ai's Hebrew Whisper
+  (`ivrit-ai/whisper-large-v3-turbo-ct2`, ~1.6 GB on first use). Override one run with the env var `SHAI_LANG`.
+- Type: Heebo 800/900 for the bold look (Frank Ruhl Libre for serif punch words), `direction:rtl` on every text
+  element, slightly positive or zero letter-spacing (Hebrew does not take the tight -.05em Latin tracking).
+- Heebo 900 averages ~.58em per Hebrew letter: size long words down so a line stays under ~980px.
+- Slang Whisper does not know (e.g. "מעפנה") comes out as nonsense: read the line in context and fix the caption.
 
 ## Defaults that came out of real feedback (do not re-litigate)
 - Change the grade and captions to create a look; do not replace the background with an AI-generated room.

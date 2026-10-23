@@ -9,6 +9,7 @@ What lives here:
   npx_command()       how to start npx without a shell (on Windows `npx` is npx.cmd, so a bare name fails)
   run_hyperframes()   npx --yes hyperframes@<pinned> ... with the right Node first on PATH
   load()              reads <skill>/.platform.json, written by setup.py, so nothing is detected twice
+  language(), whisper_model()   spoken language from config.json and the Whisper model for it
   path_arg(), utf8_stdio(), concat_entry(), safe_name()   small things every script needs on Windows
 """
 import glob
@@ -24,6 +25,7 @@ import sys
 
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLATFORM_FILE = os.path.join(SKILL_DIR, '.platform.json')
+CONFIG_FILE = os.path.join(SKILL_DIR, 'config.json')
 HYPERFRAMES = 'hyperframes@0.8.34'
 MIN_NODE = 22
 MIN_PY = (3, 10)      # what the README asks for
@@ -297,6 +299,39 @@ def load():
     if not isinstance(rec, dict) or rec.get('schema') != SCHEMA or rec.get('os') != os_name()[0]:
         return {}
     return rec
+
+
+def language():
+    """Spoken language of the clips: config.json "language" ("en" when unset). Override per run with SHAI_LANG."""
+    lang = os.environ.get('SHAI_LANG')
+    if not lang:
+        try:
+            with open(CONFIG_FILE, encoding='utf-8') as f:
+                lang = json.load(f).get('language')
+        except (OSError, ValueError):
+            pass
+    return (lang or 'en').lower()
+
+
+# fast = take picking (ingest), best = the word timings that drive captions (transcribe_cut)
+WHISPER = {
+    'en': {'fast': 'small.en', 'best': 'medium.en'},
+    # ivrit.ai's Hebrew fine-tune of large-v3-turbo (CTranslate2): far fewer mishearings than stock Whisper on Hebrew
+    'he': {'fast': 'ivrit-ai/whisper-large-v3-turbo-ct2', 'best': 'ivrit-ai/whisper-large-v3-turbo-ct2'},
+}
+
+
+def whisper_model(kind, lang=None):
+    """(model name, language code for transcribe()) for kind 'fast' or 'best'. English keeps the .en models;
+    other languages use the multilingual models."""
+    lang = lang or language()
+    if lang in WHISPER:
+        return WHISPER[lang][kind], lang
+    return {'fast': 'small', 'best': 'large-v3-turbo'}[kind], lang
+
+
+def is_rtl(lang=None):
+    return (lang or language()) in ('he', 'ar', 'fa', 'ur', 'yi')
 
 
 def tool(name):
